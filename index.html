@@ -284,7 +284,22 @@ nav>button.on{color:var(--ac)}
 body{background:radial-gradient(1100px 520px at 50% -8%,rgba(255,190,0,.20),transparent 62%),radial-gradient(800px 500px at 100% 100%,rgba(255,170,0,.10),transparent 60%),#070707!important}
 .cd,.pv{background:linear-gradient(160deg,#1c1a12 0%,#12110d 55%,#0b0b09 100%)!important;border:1px solid rgba(255,196,0,.38)!important;box-shadow:0 14px 40px rgba(0,0,0,.65),0 0 0 1px rgba(255,205,60,.06) inset,0 0 36px rgba(255,190,0,.07)!important}
 button.pr,.pr{background:linear-gradient(135deg,#ffd84a 0%,#ffc400 55%,#d99e00 100%)!important;color:#1a1300!important;border:0!important;font-weight:700!important;box-shadow:0 6px 20px rgba(255,190,0,.45),0 1px 0 rgba(255,255,255,.35) inset!important;text-shadow:0 1px 0 rgba(255,255,255,.2)}
-button:not(.pr):not(.s):hover{box-shadow:0 0 18px rgba(255,196,0,.45)!important;border-color:#ffd21f!important}
+button:not(.pr):not(.s):not(.on):hover{box-shadow:0 0 18px rgba(255,196,0,.45)!important;border-color:#ffd21f!important}
+nav button:not(.pr):not(.s):not(.on):hover,.pvtabs button:not(.pr):not(.s):not(.on):hover,.csub button:not(.pr):not(.s):hover,.seg button:not(.pr):not(.s):hover{box-shadow:none!important;border-top-color:transparent!important;border-left-color:transparent!important;border-right-color:transparent!important;border-bottom-color:rgba(255,196,0,.6)!important;background:none!important}
+.seg button:not(.on):hover,.csub button:not(.on):hover{color:#ffe27a!important;text-shadow:0 0 14px rgba(255,196,0,.8)}
+nav button,nav button:hover,nav button:focus,.pvtabs button,.pvtabs button:hover,.pvtabs button:focus,.csub button:hover,.seg button:hover{box-shadow:none!important;background:none!important;border-top-color:transparent!important;border-left-color:transparent!important;border-right-color:transparent!important;outline:0}
+nav button,.pvtabs button{transition:color .18s,text-shadow .18s,border-color .18s}
+nav button:hover,.pvtabs button:hover{color:#ffe27a!important;text-shadow:0 0 16px rgba(255,196,0,.85),0 0 4px rgba(255,196,0,.5);border-bottom-color:rgba(255,196,0,.6)!important}
+nav button:focus-visible{text-shadow:0 0 16px rgba(255,196,0,.85)}
+.cd{padding:22px 28px!important;margin-bottom:20px!important;border-radius:16px!important}
+.cd .cd{padding:0!important;margin:0 0 14px!important;border:0!important;box-shadow:none!important;background:none!important}
+.cd>h2:first-child,.cd>summary h2{margin-top:0}
+details.cd.fold>summary{padding:0;list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.pv{padding:8px 14px 18px!important}
+.pvtabs{padding:6px 12px 0!important}
+.ov{margin-left:-6px;margin-right:-6px;padding:0 6px}
+.w>.row,.w>label,.w>p.mu{padding-left:4px;padding-right:4px}
+body:not(:has(.lg)) img[src^="data:image"]{filter:hue-rotate(16deg) saturate(2.6) brightness(1.25) contrast(1.05) drop-shadow(0 0 22px rgba(255,200,0,.6))!important}
 h1,h2,.pvh2{background:linear-gradient(90deg,#fff0b8,#ffd21f 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 nav a.on,nav button.on,.pvtabs .on{text-shadow:0 0 16px rgba(255,196,0,.8)}
 .pt{border-color:rgba(255,196,0,.45)!important}
