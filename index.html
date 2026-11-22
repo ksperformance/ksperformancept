@@ -1268,7 +1268,7 @@ const typing=()=>{const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SEL
 function fbErr(e){const c=(e&&e.code)||'';if(/invalid-credential|wrong-password|user-not-found|invalid-login/.test(c))return 'Niepoprawny e-mail lub hasło.';if(/email-already/.test(c))return 'Ten adres e-mail jest już użyty.';if(/weak-password/.test(c))return 'Hasło musi mieć co najmniej 6 znaków.';if(/invalid-email/.test(c))return 'Niepoprawny adres e-mail.';if(/too-many/.test(c))return 'Zbyt wiele prób. Spróbuj za chwilę.';if(/permission|insufficient/.test(c))return 'Brak uprawnień do wykonania tej operacji.';if(/network/.test(c))return 'Brak połączenia z internetem.';return 'Błąd: '+(c||(e&&e.message)||'nieznany');}
 async function fbBoot(){try{const b='https://www.gstatic.com/firebasejs/'+FBV+'/',A=await import(b+'firebase-app.js'),U=await import(b+'firebase-auth.js'),F=await import(b+'firebase-firestore.js');
 const app=A.initializeApp(FB_CONFIG),auth=U.getAuth(app),db=F.initializeFirestore(app,{experimentalAutoDetectLongPolling:true});BE={A,U,F,auth,db};
-fbOwner=!!(await fget('config/owner'));U.onAuthStateChanged(auth,u=>{fbAuth(u)})}catch(e){console.error(e);fbBusy=false;lgErr='Nie można połączyć z serwerem. Sprawdź internet i odśwież stronę.';render()}}
+fbOwner=!!(await fget('config/owner'));U.onAuthStateChanged(auth,u=>{fbAuth(u)})}catch(e){console.error(e);fbBusy=false;lgErr='Nie można połączyć z serwerem ['+((e&&(e.code||e.message))||'?').toString().slice(0,140)+']. Sprawdź internet i odśwież stronę.';render()}}
 function fbUnsub(){fbUn.forEach(f=>{try{f()}catch(e){}});fbUn=[]}
 async function fbAuth(u){if(fbReg)return;const was=!!fbUser;fbUser=u;fbUnsub();
 if(!u){if(was){location.reload();return}fbBusy=false;setSess(null);render();return}
