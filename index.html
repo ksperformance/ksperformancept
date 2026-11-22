@@ -563,7 +563,7 @@ function resSave(did){const c=cl(),t=(c.train||[]).find(q=>q.id===did),p=t&&(pvM
 c.logs=c.logs||[];c.logs.push({id:uid(),did,dn:p.n,at:Date.now(),ex});if(c.res)delete c.res[did];resFlash=did;save();render();reopenTr(did)}
 function reopenTr(did){if($('pmo'))tdTrain(did)}
 function exViewHtml(ex,o){o=o||{};if(!ex||!ex.length)return '<p class="mu">Brak ćwiczeń.</p>';const L=exLabels(ex),inp=!!o.did||!!o.ro,c=cl(),R=(o.did&&c.res&&c.res[o.did])||{},PL=o.did&&lastLog(c,o.did),dash=v=>v?esc(v):'<span class="mu">—</span>';
-const cs=ex.some(x=>rows(x).some(q=>q.rs)),cu=ex.some(x=>x.note),nc=6+(cs?1:0)+(inp?2:0)+(cu?1:0);
+const cs=true,cu=ex.some(x=>x.note),nc=6+(cs?1:0)+(inp?2:0)+(cu?1:0);
 let h=`<div class="ov"><table class="pt"><tr><th>#</th><th class="tl">Ćwiczenie</th><th class="n1">Serie</th><th class="n2">Powt.</th><th class="n3">%CM / ciężar</th>${cs?'<th class="n3 rst">Rest</th>':''}<th class="n1">RPE</th>${inp?'<th class="in">Ciężar (kg)</th><th class="in">Powt.</th>':''}${cu?'<th>Uwagi</th>':''}</tr>`;
 ex.forEach((x,i)=>{x.id=x.id||uid();const l=L[i],a=rows(x),n=a.length,st=l.grp?` style="--gc:${l.col}"`:'',pl=PL&&(PL.ex.find(e=>e.id===x.id)||PL.ex.find(e=>e.n===x.n));
 a.forEach((q,si)=>{const cls=(si===0?'xs ':'')+(l.grp&&si===0&&l.first?'gs ':'')+(l.grp&&l.last&&(si===0||si===n-1)?'ge ':'')+(l.bn%2?'ba':'bb'),rv=(R[x.id]||[])[si]||{},pv=pl&&pl.l[si]||{};
