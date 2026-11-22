@@ -1,6 +1,6 @@
 {
- "name": "KS Personal Training",
- "short_name": "KS PT",
+ "name": "Human Performance App",
+ "short_name": "Human Performance",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
