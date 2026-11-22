@@ -1275,10 +1275,13 @@ async function pobierzApp(){
 <script>
 /* ===== FIREBASE (tryb chmurowy) ===== */
 const fcl=x=>JSON.parse(JSON.stringify(x==null?null:x));
-const fget=async p=>{const x=await BE.F.getDoc(BE.F.doc(BE.db,p));return x.exists()?x.data():null};
-const fset=(p,d)=>BE.F.setDoc(BE.F.doc(BE.db,p),fcl(d));
+const fenc=v=>Array.isArray(v)?v.map(x=>Array.isArray(x)?{__arr:fenc(x)}:fenc(x)):(v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fenc(x)])):v);
+const fdec=v=>Array.isArray(v)?v.map(fdec):(v&&typeof v==='object'?(Object.keys(v).length===1&&Array.isArray(v.__arr)?v.__arr.map(fdec):Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fdec(x)]))):v);
+function fbStat(t,bad){let e=document.getElementById('fbst');if(!e){e=document.createElement('div');e.id='fbst';e.style.cssText='position:fixed;right:12px;bottom:10px;z-index:9999;font-size:12px;padding:5px 12px;border-radius:999px;background:#111;border:1px solid #444;color:#aaa;cursor:default;max-width:80vw';document.body.appendChild(e)}e.textContent=t;e.style.borderColor=bad?'#d9534f':'#444';e.style.color=bad?'#ff8a80':'#8f8;';e.title=bad?'Kliknij, aby ponowić zapis':'';e.onclick=bad?()=>{fbLast={};fbSched()}:null;e.style.cursor=bad?'pointer':'default'}
+const fget=async p=>{const x=await BE.F.getDoc(BE.F.doc(BE.db,p));return x.exists()?fdec(x.data()):null};
+const fset=(p,d)=>BE.F.setDoc(BE.F.doc(BE.db,p),fenc(fcl(d)));
 const fdel=p=>BE.F.deleteDoc(BE.F.doc(BE.db,p));
-const fcol=async p=>(await BE.F.getDocs(BE.F.collection(BE.db,p))).docs.map(d=>({id:d.id,data:d.data()}));
+const fcol=async p=>(await BE.F.getDocs(BE.F.collection(BE.db,p))).docs.map(d=>({id:d.id,data:fdec(d.data())}));
 const typing=()=>{const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.id!=='lgp'};
 function fbErr(e){const c=(e&&e.code)||'';if(/invalid-credential|wrong-password|user-not-found|invalid-login/.test(c))return 'Niepoprawny e-mail lub hasło.';if(/email-already/.test(c))return 'Ten adres e-mail jest już użyty.';if(/weak-password/.test(c))return 'Hasło musi mieć co najmniej 6 znaków.';if(/invalid-email/.test(c))return 'Niepoprawny adres e-mail.';if(/too-many/.test(c))return 'Zbyt wiele prób. Spróbuj za chwilę.';if(/permission|insufficient/.test(c))return 'Brak uprawnień do wykonania tej operacji.';if(/network/.test(c))return 'Brak połączenia z internetem.';return 'Błąd: '+(c||(e&&e.message)||'nieznany');}
 async function fbBoot(){try{const b='https://www.gstatic.com/firebasejs/'+FBV+'/',A=await import(b+'firebase-app.js'),U=await import(b+'firebase-auth.js'),F=await import(b+'firebase-firestore.js');
@@ -1293,31 +1296,34 @@ const ln=await fget('ptlink/'+u.uid);
 if(!ln){lgErr='Twoje konto czeka na akceptację trenerki albo nie ma dostępu. Spróbuj ponownie później.';fbBusy=false;fbUser=null;await BE.U.signOut(BE.auth);setSess(null);render();return}
 fbRole='c';fbCid=ln.cid;await fbClientLoad(ln.cid)}
 catch(e){console.error(e);lgErr=fbErr(e);fbBusy=false;try{await BE.U.signOut(BE.auth)}catch(x){}fbUser=null;setSess(null);render()}}
-async function fbLoadTrainer(u){const m=await fget('ptmain/state'),cs=await fcol('ptclients'),cur=S.cur;
-if(m||cs.length){const ord=(m&&m.order)||[],cl=cs.map(d=>d.data);cl.sort((a,b)=>{const x=ord.indexOf(a.id),y=ord.indexOf(b.id);return (x<0?999:x)-(y<0?999:y)});S=Object.assign({},m||{},{clients:cl});delete S.order;if(cur)S.cur=cur;msg=''}
+async function fbLoadTrainer(u){const m=await fget('ptmain/state'),cs=await fcol('ptclients'),cur=S.cur,loc=(S.clients||[]).slice(),locTpl=(S.tpl||[]).slice();
+if(m||cs.length){const ord=(m&&m.order)||[],cl=cs.map(d=>d.data);cl.sort((a,b)=>{const x=ord.indexOf(a.id),y=ord.indexOf(b.id);return (x<0?999:x)-(y<0?999:y)});S=Object.assign({},m||{},{clients:cl});delete S.order;if(cur)S.cur=cur;msg='';const have=new Set(S.clients.map(c=>c.id));let add=0;loc.forEach(c=>{if(c&&c.id&&!have.has(c.id)){S.clients.push(c);add++}});S.tpl=S.tpl||[];const ht=new Set(S.tpl.map(t=>t.id));locTpl.forEach(t=>{if(t&&t.id&&!ht.has(t.id)){S.tpl.push(t);add++}});if(add)msg='Odzyskano z tej przeglądarki i zapisano w chmurze: '+add+'.'}
 else{msg='Dane z tej przeglądarki zostały zapisane w chmurze.'}
 S.pending=[];S.invites=S.invites||[];norm();try{loadVariants()}catch(e){}fbIds=S.clients.map(c=>c.id);fbLast={};fbReady=true;fbSched();
-fbUn.push(BE.F.onSnapshot(BE.F.collection(BE.db,'ptpend'),q=>{S.pending=q.docs.map(d=>Object.assign({id:d.id},d.data()));if(!typing())render()},e=>console.error(e)));
-fbUn.push(BE.F.onSnapshot(BE.F.collection(BE.db,'ptcw'),q=>{let ch=false;q.docs.forEach(d=>{const c=S.clients.find(x=>x.id===d.id);if(!c)return;const w=d.data();['done','res','logs'].forEach(k=>{if(w[k]!==undefined&&JSON.stringify(c[k])!==JSON.stringify(w[k])){c[k]=w[k];ch=true}})});if(ch){fbSched();if(!typing())render()}},e=>console.error(e)))}
+fbUn.push(BE.F.onSnapshot(BE.F.collection(BE.db,'ptpend'),q=>{S.pending=q.docs.map(d=>Object.assign({id:d.id},fdec(d.data())));if(!typing())render()},e=>console.error(e)));
+fbUn.push(BE.F.onSnapshot(BE.F.collection(BE.db,'ptcw'),q=>{let ch=false;q.docs.forEach(d=>{const c=S.clients.find(x=>x.id===d.id);if(!c)return;const w=fdec(d.data());['done','res','logs'].forEach(k=>{if(w[k]!==undefined&&JSON.stringify(c[k])!==JSON.stringify(w[k])){c[k]=w[k];ch=true}})});if(ch){fbSched();if(!typing())render()}},e=>console.error(e)))}
 function fbView(c){const v=fcl(c);['notes','aiNotes','rate','perWk','pay','acc','consent','done','res','logs'].forEach(k=>delete v[k]);v.train=(c.train||[]).filter(d=>d.pub).map(d=>({id:d.id,n:d.pub.n,pub:d.pub}));
 const used=new Set((c.sups||[]).map(x=>x.s));return{c:v,sup:(S.sup||[]).filter(x=>used.has(x.id)),meals:S.meals||[],ing:S.ing||[]}}
 async function fbClientLoad(cid){const w=await fget('ptcw/'+cid);
 const upd=v=>{if(!v)return;const old=S.clients&&S.clients[0]&&S.clients[0].id===cid?S.clients[0]:null,c=fcl(v.c);['done','res','logs'].forEach(k=>{c[k]=old&&old[k]!==undefined?old[k]:(w&&w[k]!==undefined?w[k]:(k==='logs'?[]:{}))});
 S={sup:v.sup||[],meals:v.meals||[],ing:v.ing||[],tpl:[],tk:'',clients:[c],cur:cid,invites:[],pending:[]};norm();fbReady=true;fbBusy=false;lgErr='';
 if(!sess||sess.r!=='c'||sess.id!==cid)setSess({r:'c',id:cid});pvMode=true;if(!old||!typing())render()};
-fbUn.push(BE.F.onSnapshot(BE.F.doc(BE.db,'ptview/'+cid),x=>{if(x.exists())upd(x.data());else{fbBusy=false;lgErr='Trenerka jeszcze nie udostępniła Twojego profilu. Spróbuj później.';render()}},e=>{console.error(e);lgErr=fbErr(e);fbBusy=false;render()}))}
+fbUn.push(BE.F.onSnapshot(BE.F.doc(BE.db,'ptview/'+cid),x=>{if(x.exists())upd(fdec(x.data()));else{fbBusy=false;lgErr='Trenerka jeszcze nie udostępniła Twojego profilu. Spróbuj później.';render()}},e=>{console.error(e);lgErr=fbErr(e);fbBusy=false;render()}))}
 function fbSave(){if(!fbReady)return;if(fbRole==='t'){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}fbSched()}
-function fbSched(){clearTimeout(fbTm);fbTm=setTimeout(fbFlush,700)}
-async function fbFlush(){if(!fbReady||!BE)return;if(fbFl){fbDirty=true;return}fbFl=true;try{do{fbDirty=false;
+function fbSched(){clearTimeout(fbTm);fbTm=setTimeout(fbFlush,400)}
+async function fbFlush(){if(!fbReady||!BE)return;if(fbFl){fbDirty=true;return}fbFl=true;const errs=[];const T=async(l,f)=>{try{await f()}catch(e){console.error('sync',l,e);errs.push(l+': '+(e.code||e.message))}};
+try{fbStat('☁ Zapisuję…');do{fbDirty=false;
 if(fbRole==='t'){const G=fcl(S),cl=G.clients||[];delete G.clients;delete G.pending;delete G.cur;G.order=cl.map(c=>c.id);
-const sg=JSON.stringify(G);if(sg!==fbLast.main){await fset('ptmain/state',G);fbLast.main=sg}
-for(const c0 of S.clients){const c=fcl(c0),sc=JSON.stringify(c);if(fbLast['c'+c.id]!==sc){await fset('ptclients/'+c.id,c);fbLast['c'+c.id]=sc}
-if(c.acc&&c.acc.uid){const v=fbView(c0),sv=JSON.stringify(v);if(fbLast['v'+c.id]!==sv){await fset('ptview/'+c.id,v);fbLast['v'+c.id]=sv}}}
-const ids=S.clients.map(c=>c.id);for(const id of fbIds){if(!ids.includes(id)){const o=fbLast['c'+id];try{await fdel('ptclients/'+id);await fdel('ptview/'+id);await fdel('ptcw/'+id)}catch(e){console.error(e)}}}fbIds=ids;
-const inv=(S.invites||[]),codes=inv.map(i=>i.code);for(const i of inv){const c=i.cid&&S.clients.find(x=>x.id===i.cid),pre=c?{lgfn:c.first||(c.name||'').split(' ')[0]||'',lgln:c.last||(c.name||'').split(' ').slice(1).join(' '),lgsx:c.sex,lgag:c.age,lgh:c.h,lgw:c.w}:null,d={cid:i.cid||null,at:i.at||'',pre},sd=JSON.stringify(d);if(fbLast['i'+i.code]!==sd){await fset('ptinv/'+i.code,d);fbLast['i'+i.code]=sd}}
-for(const k of Object.keys(fbLast)){if(k[0]==='i'&&k.length>1&&k!=='inv'&&!codes.includes(k.slice(1))){await fdel('ptinv/'+k.slice(1));delete fbLast[k]}}}
-else if(fbRole==='c'){const c=S.clients[0],w={done:c.done||{},res:c.res||{},logs:c.logs||[]},sw=JSON.stringify(w);if(sw!==fbLast.cw){await fset('ptcw/'+fbCid,w);fbLast.cw=sw}}
-}while(fbDirty)}catch(e){console.error('sync',e);msg='Błąd zapisu w chmurze: '+fbErr(e)}finally{fbFl=false}}
+const sg=JSON.stringify(G);if(sg!==fbLast.main){await T('ustawienia',async()=>{await fset('ptmain/state',G);fbLast.main=sg})}
+for(const c0 of S.clients){const c=fcl(c0),sc=JSON.stringify(c);if(fbLast['c'+c.id]!==sc){await T('klient '+(c.name||c.id),async()=>{await fset('ptclients/'+c.id,c);fbLast['c'+c.id]=sc})}
+if(c.acc&&c.acc.uid){const v=fbView(c0),sv=JSON.stringify(v);if(fbLast['v'+c.id]!==sv){await T('widok '+(c.name||c.id),async()=>{await fset('ptview/'+c.id,v);fbLast['v'+c.id]=sv})}}}
+const ids=S.clients.map(c=>c.id);for(const id of fbIds){if(!ids.includes(id)){await T('usuwanie',async()=>{await fdel('ptclients/'+id);await fdel('ptview/'+id);await fdel('ptcw/'+id)})}}fbIds=ids;
+const inv=(S.invites||[]),codes=inv.map(i=>i.code);for(const i of inv){const c=i.cid&&S.clients.find(x=>x.id===i.cid),pre=c?{lgfn:c.first||(c.name||'').split(' ')[0]||'',lgln:c.last||(c.name||'').split(' ').slice(1).join(' '),lgsx:c.sex,lgag:c.age,lgh:c.h,lgw:c.w}:null,d={cid:i.cid||null,at:i.at||'',pre},sd=JSON.stringify(d);if(fbLast['i'+i.code]!==sd){await T('kod',async()=>{await fset('ptinv/'+i.code,d);fbLast['i'+i.code]=sd})}}
+for(const k of Object.keys(fbLast)){if(k[0]==='i'&&k.length>1&&!codes.includes(k.slice(1))){await T('kod',async()=>{await fdel('ptinv/'+k.slice(1));delete fbLast[k]})}}}
+else if(fbRole==='c'){const c=S.clients[0],w={done:c.done||{},res:c.res||{},logs:c.logs||[]},sw=JSON.stringify(w);if(sw!==fbLast.cw){await T('wyniki',async()=>{await fset('ptcw/'+fbCid,w);fbLast.cw=sw})}}
+}while(fbDirty);
+if(errs.length)fbStat('☁ Błąd zapisu ('+errs[0].slice(0,80)+') – kliknij, aby ponowić',true);else fbStat('☁ Zapisano w chmurze ✓')}
+catch(e){console.error('sync',e);fbStat('☁ Błąd zapisu: '+fbErr(e),true)}finally{fbFl=false}}
 async function fbLgGo(){lgErr='';lgSave();const U=BE.U,auth=BE.auth;
 try{
 if(lgMode==='t'){const em=(lgF.lgem||'').trim().toLowerCase(),p=$('lgp').value;if(!em||!p){lgErr='Wpisz e-mail i hasło.';return render()}
