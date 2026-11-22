@@ -308,6 +308,20 @@ nav a.on,nav button.on,.pvtabs .on{text-shadow:0 0 16px rgba(255,196,0,.8)}
 .pt th{background:linear-gradient(180deg,#241d08,#0f0c05)!important;color:#ffe27a!important}
 .pt tr.bs td{border-top:2px solid #ffc400!important}
 .pt tr.gr td{background:color-mix(in srgb,var(--gc) 8%,transparent)!important}.pt td.exlab{box-shadow:none!important}
+@media (max-width:640px){
+.ov:has(>.pt:not(.ed)){margin:0 -10px}
+.pt:not(.ed){min-width:0!important;width:100%;font-size:13.5px}
+.pt:not(.ed) th{font-size:9px!important;letter-spacing:.02em!important;padding:8px 2px!important}
+.pt:not(.ed) td{padding:6px 2px!important}
+.pt:not(.ed) td.exlab{font-size:10px!important;width:22px!important;min-width:0!important;padding:6px 1px 6px 6px!important;text-shadow:none!important;letter-spacing:0}
+.pt:not(.ed) th.n1{width:28px!important}.pt:not(.ed) th.n2{width:34px!important}.pt:not(.ed) th.n3{width:40px!important}
+.pt:not(.ed) td.tl,.pt:not(.ed) td.tl{min-width:0!important;padding-left:6px!important}
+.pt:not(.ed) .exname{font-size:14px!important;line-height:1.25}
+.pt:not(.ed) .exk{font-size:8.5px!important;letter-spacing:.08em!important;margin-bottom:1px}
+.pt:not(.ed) th.in{width:50px!important}
+.pt:not(.ed) .pin,.pt:not(.ed) .in .pin{min-width:0!important;width:100%!important;padding:9px 1px!important;font-size:15px!important;border-radius:8px!important}
+.pt:not(.ed) td.in{padding:4px 2px!important}
+}
 .pt td.exlab{text-shadow:0 0 14px rgba(255,196,0,.7);font-size:20px}
 .pt{border:0!important}
 .pt th,.pt td{border:0!important}
@@ -549,7 +563,7 @@ c.logs=c.logs||[];c.logs.push({id:uid(),did,dn:p.n,at:Date.now(),ex});if(c.res)d
 function reopenTr(did){if($('pmo'))tdTrain(did)}
 function exViewHtml(ex,o){o=o||{};if(!ex||!ex.length)return '<p class="mu">Brak ćwiczeń.</p>';const L=exLabels(ex),inp=!!o.did||!!o.ro,c=cl(),R=(o.did&&c.res&&c.res[o.did])||{},PL=o.did&&lastLog(c,o.did),dash=v=>v?esc(v):'<span class="mu">—</span>';
 const cs=ex.some(x=>rows(x).some(q=>q.rs)),cu=ex.some(x=>x.note),nc=6+(cs?1:0)+(inp?2:0)+(cu?1:0);
-let h=`<div class="ov"><table class="pt"><tr><th>#</th><th class="tl">Ćwiczenie</th><th class="n1">Serie</th><th class="n2">Powt.</th><th class="n3">%CM / ciężar</th>${cs?'<th class="n3">Przerwa</th>':''}<th class="n1">RPE</th>${inp?'<th class="in">Ciężar (kg)</th><th class="in">Wykonane powt.</th>':''}${cu?'<th>Uwagi</th>':''}</tr>`;
+let h=`<div class="ov"><table class="pt"><tr><th>#</th><th class="tl">Ćwiczenie</th><th class="n1">Serie</th><th class="n2">Powt.</th><th class="n3">%CM / ciężar</th>${cs?'<th class="n3">Przerwa</th>':''}<th class="n1">RPE</th>${inp?'<th class="in">Ciężar (kg)</th><th class="in">Powt.</th>':''}${cu?'<th>Uwagi</th>':''}</tr>`;
 ex.forEach((x,i)=>{x.id=x.id||uid();const l=L[i],a=rows(x),n=a.length,st=l.grp?` style="--gc:${l.col}"`:'',pl=PL&&(PL.ex.find(e=>e.id===x.id)||PL.ex.find(e=>e.n===x.n));
 a.forEach((q,si)=>{const cls=(si===0?'xs ':'')+(l.grp&&si===0&&l.first?'gs ':'')+(l.grp&&l.last&&(si===0||si===n-1)?'ge ':'')+(l.bn%2?'ba':'bb'),rv=(R[x.id]||[])[si]||{},pv=pl&&pl.l[si]||{};
 h+=`<tr class="${cls}"${st}>${si===0?`<td class="exlab" rowspan="${n}">${l.t}</td><td class="tl" rowspan="${n}">${l.first&&l.grp?`<div class="exk">${l.k}</div>`:''}<div class="exname">${esc(x.n)}${x.yt&&/^https?:\/\//i.test(x.yt)?`<a class="yt" href="${esc(x.yt)}" target="_blank" rel="noopener" title="Zobacz na YouTube">▶ YouTube</a>`:''}</div>${x.sub?`<div class="mu exnote">${esc(x.sub)}</div>`:''}</td>`:''}<td>${dash(q.s)}</td><td>${dash(q.r)}</td><td>${dash(q.w)}</td>${cs?`<td>${dash(q.rs)}</td>`:''}<td>${dash(q.rpe)}</td>${inp?`<td class="in"><input class="pin" inputmode="decimal" placeholder="${esc(pv.w||'kg')}" value="${esc(rv.w||'')}" ${o.ro?'disabled':`onchange="resSet('${o.did}','${x.id}',${si},'w',this.value)"`}></td><td class="in"><input class="pin" inputmode="numeric" placeholder="${esc(pv.r||q.r||'')}" value="${esc(rv.r||'')}" ${o.ro?'disabled':`onchange="resSet('${o.did}','${x.id}',${si},'r',this.value)"`}></td>`:''}${cu&&si===0?`<td rowspan="${n}">${x.note?`<a href="#" class="kl" onclick="$('nr_${x.id}').classList.toggle('open');return false">kliknij</a>`:''}</td>`:''}</tr>`});
