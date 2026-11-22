@@ -308,6 +308,7 @@ nav a.on,nav button.on,.pvtabs .on{text-shadow:0 0 16px rgba(255,196,0,.8)}
 .pt th{background:linear-gradient(180deg,#241d08,#0f0c05)!important;color:#ffe27a!important}
 .pt tr.bs td{border-top:2px solid #ffc400!important}
 .pt tr.gr td{background:color-mix(in srgb,var(--gc) 8%,transparent)!important}.pt td.exlab{box-shadow:none!important}
+.fs{position:fixed!important;inset:0;z-index:60;background:var(--bg,#0d0c0b)!important;overflow:auto;padding:12px 10px 40px!important;margin:0!important;border:0!important;border-radius:0!important;box-sizing:border-box}.fs .ov:has(>.pt:not(.ed)){margin:0!important}.fs .pt:not(.ed){min-width:0}
 @media (max-width:640px){
 .ov:has(>.pt:not(.ed)){margin:0 -19px}
 .pt:not(.ed){min-width:0!important;width:100%;font-size:13.5px}
@@ -359,7 +360,7 @@ clients:[
 {id:'c1',name:'Klient A',sex:'k',age:30,h:168,w:65,act:1.55,goal:-15,notes:'',plan:[{m:'m1',x:1},{m:'m2',x:1}],train:[],sups:[],meas:[]},
 {id:'c2',name:'Klient B',sex:'k',age:30,h:168,w:65,act:1.55,goal:0,notes:'',plan:[],train:[],sups:[],meas:[]},
 {id:'c3',name:'Klient C',sex:'k',age:30,h:168,w:65,act:1.55,goal:10,notes:'',plan:[],train:[],sups:[],meas:[]}],cur:'c1'};
-var trSel=null,trEdit=false;var FB_CONFIG={apiKey:"AIzaSyCaaKIcyMErafxgmw4GuYUdmBrKF101VuA",authDomain:"ksperformancept.firebaseapp.com",databaseURL:"https://ksperformancept-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ksperformancept",storageBucket:"ksperformancept.firebasestorage.app",messagingSenderId:"790754550568",appId:"1:790754550568:web:af0ab49b055a493916661d"};var FB_ON=!!FB_CONFIG,FBV='10.12.2',BE=null,fbUser=null,fbBusy=true,fbOwner=false,fbReg=false,fbReady=false,fbRole='',fbCid='',fbInv=null,fbLast={},fbIds=[],fbCwSeen=false,fbTm=0,fbFl=false,fbDirty=false,fbUn=[];
+var trSel=null,trEdit=false,trFsId='';function trFsT(id){trFsId=trFsId===id?'':id;render();window.scrollTo(0,0)}var FB_CONFIG={apiKey:"AIzaSyCaaKIcyMErafxgmw4GuYUdmBrKF101VuA",authDomain:"ksperformancept.firebaseapp.com",databaseURL:"https://ksperformancept-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ksperformancept",storageBucket:"ksperformancept.firebasestorage.app",messagingSenderId:"790754550568",appId:"1:790754550568:web:af0ab49b055a493916661d"};var FB_ON=!!FB_CONFIG,FBV='10.12.2',BE=null,fbUser=null,fbBusy=true,fbOwner=false,fbReg=false,fbReady=false,fbRole='',fbCid='',fbInv=null,fbLast={},fbIds=[],fbCwSeen=false,fbTm=0,fbFl=false,fbDirty=false,fbUn=[];
 function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return JSON.parse(JSON.stringify(seed))}
 function blankClient(){return{id:uid(),name:'Nowy klient',sex:'k',age:30,h:170,w:70,act:1.55,goal:0,notes:'',plan:[],train:[],sups:[],meas:[]}}
 let S=load(),view='clients',msg='',pPlan=null,pArm=null,pTop='plan',pSub='diet',pDiet='plan',nt='plan',cvT='diet',cvD=7,supF='',draft={name:'',kind:'Obiad',diet:'',min:'',steps:'',items:[]},pT=0,remoteReady=false;
@@ -475,7 +476,7 @@ const di=T.findIndex(d=>d.id===trSel),d=T[di],t0=localDay(),dl=x=>x===t0?'dziś'
 const chips=`<div class="trbar">${T.map(x=>`<button class="trc ${x.id===trSel?'on':''}" onclick="trPick('${x.id}')">${esc(x.n)}${dm[x.id]?`<small>${dl(dm[x.id])}</small>`:''}</button>`).join('')}<button class="s" style="color:var(--ac)" onclick="trAdd()">+ Trening</button></div>`;
 const info=dm[d.id]?`Zaplanowany: ${dl(dm[d.id])}${nx&&nx[0]===d.id?' (najbliższy)':''}`:'Nie wpisany w terminarz';
 if(trEdit)return chips+`<div class="row" style="align-items:center;margin-bottom:12px"><span class="mu">Edycja treningu</span><span style="flex:1"></span><button class="pr" onclick="trEd(false)">Gotowe</button></div>`+dayBlock('c',c.id,di,d)+`<p class="mu" style="font-size:13px">Pozostałe plany, szablony i generowanie przez AI znajdziesz w zakładce <a href="#" style="color:var(--ac)" onclick="goTop('plan');return false">Plany</a>.</p>`;
-return chips+`<div class="cd trcd"><div class="row" style="align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><h2 style="margin:0">${esc(d.n)}</h2><span class="mu">${info}</span><span style="flex:1"></span><button onclick="trEd(true)">Edytuj</button></div>${d.ex.length?exViewHtml(d.ex,{did:d.id}):'<p class="mu">Ten trening nie ma jeszcze ćwiczeń. Kliknij „Edytuj”, aby je dodać.</p>'}${pubBarHtml(c.id,di,d)}</div>`}
+return chips+`<div class="cd trcd${trFsId===d.id?' fs':''}"><div class="row" style="align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><h2 style="margin:0">${esc(d.n)}</h2><span class="mu">${info}</span><span style="flex:1"></span><button onclick="trFsT('${d.id}')">${trFsId==='${d.id}'?'✕ Zamknij pełny ekran':'⛶ Pełny ekran'}</button><button onclick="trEd(true)">Edytuj</button></div>${d.ex.length?exViewHtml(d.ex,{did:d.id}):'<p class="mu">Ten trening nie ma jeszcze ćwiczeń. Kliknij „Edytuj”, aby je dodać.</p>'}${pubBarHtml(c.id,di,d)}</div>`}
 function podV(c){return formV(c)+`<details class="cd fold"><summary><h2>Dostęp klienta</h2></summary>${codeV(c).replace('<div class="cd"><h2>Dostęp klienta</h2>','<div>')}</details>`+`<details class="cd fold"><summary><h2>Baza składników</h2></summary>${ingV()}</details>`}
 const FORK_SVG='<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 3v6a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3M6 3v18M17 21V3c-2 1-3 3-3 7 0 2 1 3 3 3"/></svg>';
 function dayTot(d){const t={k:0,p:0,c:0,f:0};d.meals.forEach(x=>{const e=entInfo(x);if(e)for(const q of ['k','p','c','f'])t[q]+=e.s[q]*x.x});return t}
@@ -1014,7 +1015,7 @@ function tmIn(id,v){const m=/^(\d{1,2}):(\d{2})$/.exec(v||''),h=m?+m[1]:-1,mi=m?
 return `<span class="tmp"><input type="hidden" id="${id}" value="${esc(v||'')}"><select id="${id}_h" onchange="tmSet('${id}')" aria-label="Godzina"><option value="">--</option>${Array.from({length:24},(_,i)=>`<option value="${String(i).padStart(2,'0')}" ${i===h?'selected':''}>${String(i).padStart(2,'0')}</option>`).join('')}</select><b>:</b><select id="${id}_m" onchange="tmSet('${id}')" aria-label="Minuty">${ms.map(x=>`<option ${x===mi?'selected':''}>${x}</option>`).join('')}</select></span>`}
 function tmSet(id){const h=$(id+'_h').value,m=$(id+'_m').value;$(id).value=h?h+':'+m:''}
 function pvTrainV(c){const TP=(c.train||[]).filter(d=>d.pub);if(!TP.length)return '<section class="pvd"><p class="mu">Plan treningowy jeszcze nie jest gotowy. Pojawi się tutaj, gdy trener go przygotuje.</p></section>';
-return TP.map(d=>`<section class="pvd"><h2 class="pvh2">${esc(d.pub.n)}</h2>${exViewHtml(d.pub.ex,{did:d.id})}</section>`).join('')}
+return TP.map(d=>`<section class="pvd${trFsId===d.id?' fs':''}"><div class="row" style="align-items:center;gap:12px;flex-wrap:wrap"><h2 class="pvh2" style="margin:0;flex:1">${esc(d.pub.n)}</h2><button onclick="trFsT('${d.id}')">${trFsId==='${d.id}'?'✕ Zamknij pełny ekran':'⛶ Pełny ekran'}</button></div>${exViewHtml(d.pub.ex,{did:d.id})}</section>`).join('')}
 function pvSupV(c){const sl=(c.sups||[]).map(x=>({x,s:S.sup.find(q=>q.id===x.s)})).filter(o=>o.s);
 const blk=(t,k)=>`<section class="pvd"><h2 class="pvh2">${t}</h2>${sl.filter(o=>o.x.day===k||o.x.day==='b').map(o=>`<div class="pvrow"><span><b style="font-weight:500">${esc(o.s.name)}</b><br><span class="pvtmeta">${esc(o.x.timing)}${o.s.note?' · '+esc(o.s.note):''}</span></span><span class="pvnum">${esc(o.x.dose)}</span></div>`).join('')||'<p class="mu">Brak suplementów.</p>'}</section>`;
 return blk('Dzień treningowy','t')+blk('Dzień nietreningowy','r')}
@@ -1285,7 +1286,7 @@ async function wzGo(){if(!wz.name)wz.name='Plan '+fd(wz.start);wz.busy=true;wz.e
 </script><script>let dayD=localDay();
 cvD=1;
 function go(v){if(v==='tplans'&&view==='tplans')tOpen=null;navPush();view=v;msg='';rcOpen=null;rcEdit=null;radj={id:null,t:null,res:null,busy:false,err:''};mEd=null;render()}
-function openC(id){navPush();S.cur=id;view='client';rcOpen=null;mEd=null;pTop='tr';trSel=null;trEdit=false;pSub='tr';pDiet='plan';pPlan=null;pArm=null;msg='';dayD=localDay();render()}
+function openC(id){navPush();S.cur=id;view='client';rcOpen=null;mEd=null;pTop='tr';trSel=null;trEdit=false;trFsId='';pSub='tr';pDiet='plan';pPlan=null;pArm=null;msg='';dayD=localDay();render()}
 let tipEl=null;
 document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){if(tipEl)tipEl.style.display='none';return}if(!tipEl){tipEl=document.createElement('div');tipEl.id='tipbox';document.body.appendChild(tipEl)}tipEl.innerHTML=t.getAttribute('data-tip');tipEl.style.display='block'});
 document.addEventListener('mousemove',e=>{if(tipEl&&tipEl.style.display==='block'){tipEl.style.left=Math.min(e.clientX+16,window.innerWidth-340)+'px';tipEl.style.top=(e.clientY+16)+'px'}});
