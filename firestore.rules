@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function ownerDoc() { return /databases/$(database)/documents/config/owner; }
+    function isTrainer() { return signedIn() && exists(ownerDoc()) && get(ownerDoc()).data.uid == request.auth.uid; }
+    function linkDoc() { return /databases/$(database)/documents/ptlink/$(request.auth.uid); }
+    function linkedTo(cid) { return signedIn() && exists(linkDoc()) && get(linkDoc()).data.cid == cid; }
+
+    // Konto trenerki: można je utworzyć tylko raz
+    match /config/owner {
+      allow get: if true;
+      allow create: if signedIn() && !exists(ownerDoc()) && request.resource.data.uid == request.auth.uid;
+      allow list, update, delete: if false;
+    }
+    // Wszystkie dane trenerki (w tym notatki, stawki, płatności) – tylko trenerka
+    match /ptmain/{d} { allow read, write: if isTrainer(); }
+    match /ptclients/{id} { allow read, write: if isTrainer(); }
+    // Widok klienta (bez notatek, stawek i płatności): czyta klient, zapisuje trenerka
+    match /ptview/{id} {
+      allow read: if isTrainer() || linkedTo(id);
+      allow write: if isTrainer();
+    }
+    // Wyniki wpisywane przez klienta (ciężary, powtórzenia, odhaczenia)
+    match /ptcw/{id} { allow read, write: if isTrainer() || linkedTo(id); }
+    // Powiązanie konta z profilem klienta (tworzy trenerka po akceptacji)
+    match /ptlink/{uid} {
+      allow read: if isTrainer() || (signedIn() && request.auth.uid == uid);
+      allow write: if isTrainer();
+    }
+    // Kody zaproszeń: sprawdzić kod może każdy, kto go zna; lista i zapis tylko trenerka
+    match /ptinv/{code} {
+      allow get: if true;
+      allow list, write: if isTrainer();
+    }
+    // Oczekujące konta: klient tworzy własny wniosek tylko z istniejącym kodem
+    match /ptpend/{uid} {
+      allow read: if isTrainer() || (signedIn() && request.auth.uid == uid);
+      allow create: if signedIn() && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/ptinv/$(request.resource.data.code))
+        && request.resource.data.cid == get(/databases/$(database)/documents/ptinv/$(request.resource.data.code)).data.cid;
+      allow update, delete: if isTrainer();
+    }
+  }
+}
