@@ -337,6 +337,27 @@ nav a.on,nav button.on,.pvtabs .on{text-shadow:0 0 16px rgba(255,196,0,.8)}
 .pt.pair th.n1{width:20px!important}.pt.pair th.n2{width:24px!important}.pt.pair th.n3{width:28px!important}.pt.pair th.rst{width:24px!important}.pt.pair td.tl{min-width:70px!important}.pt.pair .exname{font-size:13px!important}.pt.pair td.exlab{padding-left:3px!important}.pt.pair th.in{width:40px!important}.pt.pair td{font-size:12px}.pt.pair td.wp .pin{padding:9px 0!important;font-size:13px!important;min-width:0!important}.pt.pair td.in:not(.wp) .pin{font-size:13px!important}.pt:not(.ed) td.wp{min-width:70px}.pt:not(.ed) td.wp .pin{width:48%!important;display:inline-block!important}
 }
 #pmo{z-index:100!important}
+/* zakładki i listy w stylu MoveBuddy */
+nav,.ctop,.csub,.pvtabs{border-bottom:1px solid rgba(255,255,255,.08)!important;gap:0 28px!important}
+nav>button:not(.nb),.ctop button,.csub button,.pvtabs button{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;text-shadow:none!important;color:#85858b!important;font-weight:600!important;letter-spacing:.01em!important;padding:10px 0 13px!important;position:relative;transition:color .25s}
+nav>button::before,.ctop button::before,.csub button::before,.pvtabs button::before{display:none!important}
+nav>button:not(.nb)::after,.ctop button::after,.csub button::after,.pvtabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px;background:#ffc400;transform:scaleX(0);opacity:0;transition:transform .3s cubic-bezier(.2,.7,.2,1),opacity .2s}
+nav>button.on,.ctop button.on,.csub button.on,.pvtabs button.on{color:#fff!important}
+nav>button.on::after,.ctop button.on::after,.csub button.on::after,.pvtabs button.on::after{transform:scaleX(1);opacity:1}
+nav>button:not(.nb):not(.on):hover,.ctop button:not(.on):hover,.csub button:not(.on):hover,.pvtabs button:not(.on):hover{color:#e6e6e8!important;background:none!important}
+nav>button:not(.nb):not(.on):hover::after,.ctop button:not(.on):hover::after,.csub button:not(.on):hover::after,.pvtabs button:not(.on):hover::after{transform:scaleX(.3);opacity:.45}
+nav>button{font-size:17px!important}.ctop button{font-size:16px!important}.csub button,.pvtabs button{font-size:14.5px!important}
+.ctop,.csub,.pvtabs{justify-content:flex-start!important}
+@media (max-width:640px){.ctop,.csub,.pvtabs{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:0 22px!important}.ctop::-webkit-scrollbar,.csub::-webkit-scrollbar,.pvtabs::-webkit-scrollbar{display:none}.ctop button,.csub button,.pvtabs button{flex:none;white-space:nowrap}.ctop button::after,.csub button::after,.pvtabs button::after{bottom:0}}
+.dd{display:inline-block;position:relative;max-width:100%;vertical-align:middle}.dd.blk{display:block;width:100%}
+.ddb{width:100%;display:flex!important;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:linear-gradient(180deg,#171512,#0f0e0c)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px!important;padding:10px 14px!important;min-height:0;font-weight:500;color:#ece7dc!important;box-shadow:none!important;transition:border-color .2s,background .2s}
+.ddb:hover,.ddb.open{border-color:rgba(255,196,0,.55)!important;background:#14120e!important}.ddb:disabled{opacity:.5}
+.ddb>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ddb::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid #ffc400;border-bottom:2px solid #ffc400;transform:rotate(45deg) translate(-2px,-2px);transition:transform .25s}.ddb.open::after{transform:rotate(225deg) translate(-2px,-2px)}
+.ddl{position:fixed;z-index:200;overflow:auto;max-width:min(92vw,520px);background:#141210;border:1px solid rgba(255,196,0,.28);border-radius:14px;padding:6px;box-shadow:0 18px 50px rgba(0,0,0,.7);animation:ddIn .16s ease-out}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ddi{padding:10px 14px;border-radius:9px;cursor:pointer;font-size:15px;color:#d8d3c8}.ddi:hover{background:rgba(255,255,255,.07);color:#fff}.ddi.sel{color:#ffc400;background:rgba(255,196,0,.08)}.ddi.sel::after{content:"✓";float:right;margin-left:18px}.ddi.dis{opacity:.4;cursor:default}
+.ddg{padding:10px 14px 4px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#85858b}
 .pt td.exlab{text-shadow:none!important;font-size:18px;font-weight:600;color:#d9b030!important}
 .pt{border:0!important}
 .pt th,.pt td{border:0!important}
@@ -605,6 +626,20 @@ function nbCancel(){if(nbT){clearTimeout(nbT);nbT=null}}
 function nbClick(ref,j){const d=exDay(ref);if(!d||!d.ex[j])return;const x=d.ex[j];if(!x.note)return nbEdit(ref,j);pmOpen(`<b>Uwagi</b> <span class="mu">${esc(String(x.n||'').split('\n')[0])}</span>`,`<p style="white-space:pre-line">${esc(x.note)}</p><p><button onclick="nbEdit('${ref}',${j})">Edytuj</button> <button onclick="pmClose()">Zamknij</button></p><p class="mu" style="font-size:12px">Edycja: przytrzymaj ikonkę w tabeli.</p>`)}
 function nbEdit(ref,j){const d=exDay(ref);if(!d||!d.ex[j])return;const x=d.ex[j];pmOpen(`<b>Uwagi</b> <span class="mu">${esc(String(x.n||'').split('\n')[0])}</span>`,`<textarea id="nbt" rows="4" style="width:100%;min-height:90px">${esc(x.note||'')}</textarea><p><button class="pr" onclick="nbSave('${ref}',${j})">Zapisz</button> <button onclick="pmClose()">Anuluj</button></p>`);setTimeout(()=>{const e=$('nbt');if(e)e.focus()},80)}
 function nbSave(ref,j){const d=exDay(ref);if(!d||!d.ex[j])return;d.ex[j].note=($('nbt').value||'').trim();save();pmClose();render()}
+var ddT=null,ddL=null;
+function ddClose(){if(ddL){ddL.remove();ddL=null}document.querySelectorAll('.ddb.open').forEach(b=>b.classList.remove('open'))}
+function ddLabel(s){const o=s.options[s.selectedIndex];return o?o.textContent:''}
+function ddOpen(btn,sel){ddClose();btn.classList.add('open');const L=document.createElement('div');L.className='ddl';L.setAttribute('role','listbox');
+const add=o=>{const it=document.createElement('div');it.className='ddi'+(o.selected?' sel':'')+(o.disabled?' dis':'');it.textContent=o.textContent;if(!o.disabled)it.onclick=()=>{sel.value=o.value;ddClose();btn.firstChild.textContent=ddLabel(sel);sel.dispatchEvent(new Event('change',{bubbles:true}))};L.appendChild(it)};
+[...sel.children].forEach(ch=>{if(ch.tagName==='OPTGROUP'){const g=document.createElement('div');g.className='ddg';g.textContent=ch.label;L.appendChild(g);[...ch.children].forEach(add)}else add(ch)});
+document.body.appendChild(L);ddL=L;const r=btn.getBoundingClientRect(),below=innerHeight-r.bottom,up=below<Math.min(L.scrollHeight,260)+12&&r.top>below;
+L.style.minWidth=r.width+'px';L.style.maxHeight=Math.max(120,Math.min(Math.round(innerHeight*.55),(up?r.top:below)-14))+'px';L.style.left=Math.max(8,Math.min(r.left,innerWidth-L.offsetWidth-8))+'px';L.style[up?'bottom':'top']=(up?innerHeight-r.top+6:r.bottom+6)+'px';
+const s=L.querySelector('.sel');if(s)s.scrollIntoView({block:'nearest'})}
+function ddInit(){document.querySelectorAll('select:not([data-dd]):not([multiple])').forEach(s=>{s.dataset.dd='1';const w=document.createElement('span');w.className='dd';const cs=getComputedStyle(s);if(cs.display==='block'||s.style.width==='100%')w.classList.add('blk');if(s.style.width&&s.style.width!=='100%')w.style.width=s.style.width;if(s.style.maxWidth)w.style.maxWidth=s.style.maxWidth;const b=document.createElement('button');b.type='button';b.className='ddb';b.disabled=s.disabled;const t=document.createElement('span');t.textContent=ddLabel(s);b.appendChild(t);b.onclick=()=>{b.classList.contains('open')?ddClose():ddOpen(b,s)};s.parentNode.insertBefore(w,s);w.appendChild(b);w.appendChild(s);s.style.display='none'})}
+document.addEventListener('pointerdown',e=>{if(ddL&&!ddL.contains(e.target)&&!(e.target.closest&&e.target.closest('.ddb')))ddClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')ddClose()});
+window.addEventListener('scroll',e=>{if(ddL&&!(e.target&&e.target.nodeType===1&&ddL.contains(e.target)))ddClose()},true);window.addEventListener('resize',ddClose);
+try{new MutationObserver(()=>{clearTimeout(ddT);ddT=setTimeout(()=>{try{ddInit()}catch(e){}},20)}).observe(document.documentElement,{childList:true,subtree:true});ddT=setTimeout(()=>{try{ddInit()}catch(e){}},50)}catch(e){}
 function lastLog(c,did){const a=(c.logs||[]).filter(g=>g.did===did);return a.length?a[a.length-1]:null}
 function resSave(did){const c=cl(),t=(c.train||[]).find(q=>q.id===did),p=t&&(pvMode?t.pub:(t.pub||t));if(!p)return;const R=(c.res||{})[did]||{};const note=String(R._note||'');const pr=!!R._pair,i1=R._i1||'',i2=R._i2||'';let any=!!note;const ex=p.ex.map(x=>({id:x.id,n:x.n,l:rows(x).map((s,si)=>{const q=(R[x.id]||[])[si]||{};if(q.w||q.r||q.w2)any=true;return pr?{w:q.w||'',w2:q.w2||'',r:q.r||''}:{w:q.w||'',r:q.r||''}})}));if(!any){resFlash='!'+did;return render(),reopenTr(did)}
 c.logs=c.logs||[];c.logs.push({id:uid(),did,dn:p.n,at:Date.now(),ex,note,pair:pr,i1,i2});if(c.res){delete c.res[did];if(pr)c.res[did]={_pair:true,_i1:i1,_i2:i2}}resFlash=did;save();render();reopenTr(did)}
