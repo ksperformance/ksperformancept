@@ -340,8 +340,8 @@ nav a.on,nav button.on,.pvtabs .on{text-shadow:0 0 16px rgba(255,196,0,.8)}
 /* zakładki i listy w stylu MoveBuddy */
 nav,.ctop,.csub,.pvtabs{border-bottom:1px solid rgba(255,255,255,.08)!important;gap:0 28px!important}
 nav>button:not(.nb),.ctop button,.csub button,.pvtabs button{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;text-shadow:none!important;color:#85858b!important;font-weight:600!important;letter-spacing:.01em!important;padding:10px 0 13px!important;position:relative;transition:color .25s}
-.ctop button::before,.csub button::before,.pvtabs button::before{display:none!important}
-nav{--sg:28px!important}nav>button:not(.nb):not(:first-child)::before{background:rgba(255,196,0,.4)!important;height:18px;margin-top:-9px}
+.ctop button::before,.csub button::before{display:none!important}
+nav,.pvtabs{--sg:28px!important}nav>button:not(.nb):not(:first-child)::before,.pvtabs button+button::before{background:rgba(255,196,0,.4)!important;height:18px;margin-top:-9px}
 nav>button:not(.nb)::after,.ctop button::after,.csub button::after,.pvtabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px;background:#ffc400;transform:scaleX(0);opacity:0;transition:transform .3s cubic-bezier(.2,.7,.2,1),opacity .2s}
 nav>button.on,.ctop button.on,.csub button.on,.pvtabs button.on{color:#fff!important}
 nav>button.on::after,.ctop button.on::after,.csub button.on::after,.pvtabs button.on::after{transform:scaleX(1);opacity:1}
@@ -873,7 +873,7 @@ L.sort((a,b)=>(a.tm||(String(a.s).match(/\d{1,2}:\d{2}/)||[''])[0]||'99').locale
 out.push(`<section class="pvd"><div class="pvh" style="display:flex;gap:10px 14px;align-items:baseline;flex-wrap:wrap"><span class="wdbig">${wdayPl(d)}</span><span class="pvdate">${fd(d)}${n===0?' · dziś':n===1?' · jutro':''}</span></div>${L.map(x=>`<div class="pvrow" style="align-items:center"><span>${x.tm?`<b style="color:var(--ac)">${esc(x.tm)}</b> · `:''}${esc(x.t)}${x.s?` <span class="mu">· ${esc(x.s)}</span>`:''}</span>${x.cnt?`<span class="ptc${x.lo?' lo':''}" title="Numer treningu w pakiecie">${x.cnt}</span>`:''}</div>${x.warn?`<div class="ptw"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></svg><span>${x.warn}</span></div>`:''}`).join('')}</section>`)}
 return out.length?`<p class="pvtmeta" style="margin:0 0 12px">Zaplanowane treningi i aktywności na najbliższe 4 tygodnie.</p>`+out.join(''):'<section class="pvd"><p class="mu">Brak zaplanowanych treningów. Pojawią się tutaj, gdy trenerka je doda.</p></section>'}
 function cvV(){const c=cl();const tab=['today','sched','train','diet','sup','hab','meas'].includes(cvT)?cvT:'today';
-const T=[['today','Dziś'],['sched','Terminarz'],['train','Plan treningowy'],['diet','Plan żywieniowy'],['sup','Suplementacja'],['hab','Nawyki'],['meas','Pomiary']];
+const T=[['today','Dziś'],['train','Plan treningowy'],['sched','Terminarz'],['diet','Plan żywieniowy'],['sup','Suplementacja'],['hab','Nawyki'],['meas','Pomiary']];
 const nav=`<div class="pvtabs">${T.map(x=>`<button class="${tab===x[0]?'on':''}" onclick="cvGo('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
 const b=tab==='today'?pvTodayV(c):tab==='sched'?pvSchedV(c):tab==='train'?pvTrainV(c):tab==='sup'?pvSupV(c):tab==='hab'?pvHabV(c):tab==='meas'?pvMeasV(c):pvDietV(c);
 return `${pvMode?'':'<p class="mu pvnote">Podgląd dla klienta. Notatki i przeciwwskazania są ukryte.</p>'}<div class="pv">${nav}<div class="pvbody ${pvAn?'pvanim':''} ${tab==='today'?'tdgrid':''}">${b}</div></div>`}
